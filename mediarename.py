@@ -149,9 +149,9 @@ class TMediaRename:
 	
 		newname = name
 		# Separators to spaces
-		newname = re.sub(r'[ \(\),;\.!\?\-_]+', r' ', newname )
+		newname = re.sub(r'[ \(\),;:|\.!\?\-_\\\/]+', r' ', newname )
 		# Contract punctuation
-		newname = re.sub(r'\'+', r'', newname )
+		newname = re.sub(r'[\'"]+', r'', newname )
 		# Ampersand
 		newname = re.sub(r'&', r'And', newname )
 
