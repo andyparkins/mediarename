@@ -165,9 +165,10 @@ class TMediaRename:
 		title = self.normalise(tag.title)
 		album = self.normalise(tag.album)
 		track = tag.track
+		year = tag.year
 		if track is None and n is not None:
 			track = n
-		newname = self.createNewName(artist, album, track, title, extension)
+		newname = self.createNewName(artist, album, track, title, extension, year)
 
 		if self.options.verbose:
 			print "%s/%s/%d/%s  -> " % (tag.artist,tag.album,tag.track,tag.title),
@@ -178,7 +179,7 @@ class TMediaRename:
 	# Function:		createNewName
 	# Description:
 	#
-	def createNewName( self, artist, album, track, title, extension ):
+	def createNewName( self, artist, album, track, title, extension, year ):
 		formatString = []
 		variableList = []
 
@@ -190,6 +191,9 @@ class TMediaRename:
 		formatString.append( "%s/" )
 
 		if self.options.includealbum:
+			if self.options.tracknums and year is not None:
+				variableList.append(year)
+				formatString.append("%04.4d_")
 			variableList.append(album)
 			formatString.append("%s/")
 
