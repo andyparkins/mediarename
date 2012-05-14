@@ -134,9 +134,14 @@ class TMediaRename:
 			print "mediarename: skipping existing target,", tofile
 			return
 
-		print "mediarename: '%s' => '%s'" % (fromfile, tofile)
-		if not self.options.dryrun:
-			shutil.copy2( fromfile, tofile )
+		if self.options.move:
+			print "mediarename: '%s' -> '%s'" % (fromfile, tofile)
+			if not self.options.dryrun:
+				os.rename( fromfile, tofile )
+		else:
+			print "mediarename: '%s' => '%s'" % (fromfile, tofile)
+			if not self.options.dryrun:
+				shutil.copy2( fromfile, tofile )
 
 	#
 	# Function:		processFile
@@ -254,6 +259,9 @@ class TMediaRename:
 		parser.add_option( "-d", "--dry-run", dest="dryrun",
 			action="store_true",
 			help="Don't actually change anything, implies verbose")
+		parser.add_option( "-m", "--move", dest="move",
+			action="store_true",
+			help="Move instead of copy")
 		parser.add_option( "", "--test", dest="mode",
 			action="store_const", const="testnormalise",
 			help="Test the normalisation patterns")
