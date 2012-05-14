@@ -125,16 +125,18 @@ class TMediaRename:
 		newdirname = os.path.dirname( tofile )
 
 		if not os.path.exists( newdirname ):
-			if self.options.verbose:
+			if self.options.verbose or self.options.dryrun:
 				print "mediarename: Creating directory '%s'" % (newdirname)
-			os.makedirs( newdirname )
+			if not self.options.dryrun:
+				os.makedirs( newdirname )
 
 		if os.path.exists( tofile ):
 			print "mediarename: skipping existing target,", tofile
 			return
 
 		print "mediarename: '%s' => '%s'" % (fromfile, tofile)
-		shutil.copy2( fromfile, tofile )
+		if not self.options.dryrun:
+			shutil.copy2( fromfile, tofile )
 
 	#
 	# Function:		processFile
@@ -249,15 +251,9 @@ class TMediaRename:
 		parser.add_option( "-a", "--albums", dest="includealbum",
 			action="store_true",
 			help="Include the album name as part of the path")
-#		parser.add_option( "", "--listblogs", dest="mode",
-#			action="store_const", const="listblogs",
-#			help="List the available blogs")
-#		parser.add_option( "", "--testmd", dest="mode",
-#			action="store_const", const="testmd",
-#			help="Test the ikiwiki-to-markdown engine from the supplied filenames")
-#		parser.add_option( "", "--sync", dest="mode",
-#			action="store_const", const="sync",
-#			help="Use article titles to look up post IDs")
+		parser.add_option( "-d", "--dry-run", dest="dryrun",
+			action="store_true",
+			help="Don't actually change anything, implies verbose")
 		parser.add_option( "", "--test", dest="mode",
 			action="store_const", const="testnormalise",
 			help="Test the normalisation patterns")
