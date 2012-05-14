@@ -33,6 +33,7 @@
 # Standard library
 import sys
 import os
+import shutil
 import subprocess
 import locale
 import time
@@ -99,23 +100,72 @@ class TMediaRename:
 
 			filemap = dict()
 			for file in self.positionalparameters:
-				basename, extension = os.path.splitext(file)
+				filemap[file] = self.processFile(file)
+				if filemap[file] is None:
+					continue
 
-				f = tagpy.FileRef( file )
-				tag = f.tag()
+				if self.options.verbose:
+					print filemap[file]
 
-				artist = self.normalise(tag.artist)
-				title = self.normalise(tag.title)
-				album = self.normalise(tag.album)
-				track = tag.track
-				filemap[file] = self.createNewName(artist, album, track, title, extension)
-
-				print "%s/%s/%d/%s  -> " % (tag.artist,tag.album,tag.track,tag.title),
-				print filemap[file]
+				try:
+					self.renameWithPathCreate( file, filemap[file] )
+				except Exception, e:
+					print >> sys.stderr,  "mediarename: ERROR creating target:",e.args[0]
+					raise
 
 		elif self.options.mode == 'testnormalise':
 			for teststring in self.positionalparameters:
 				print self.normalise( teststring )
+
+	#
+	# Function:		renameWithPathCreate
+	# Description:
+	#
+	def renameWithPathCreate( self, fromfile, tofile ):
+		newdirname = os.path.dirname( tofile )
+
+		if not os.path.exists( newdirname ):
+			if self.options.verbose:
+				print "mediarename: Creating directory '%s'" % (newdirname)
+			os.makedirs( newdirname )
+
+		if os.path.exists( tofile ):
+			print "mediarename: skipping existing target,", tofile
+			return
+
+		print "mediarename: '%s' => '%s'" % (fromfile, tofile)
+		shutil.copy2( fromfile, tofile )
+
+	#
+	# Function:		processFile
+	# Description:
+	#
+	def processFile( self, file, n = None ):
+		if not os.path.exists( file ):
+			print >> sys.stderr, "mediarename: skipping non-existent file", file
+			return None
+
+		basename, extension = os.path.splitext(file)
+
+		try:
+			f = tagpy.FileRef( file )
+			tag = f.tag()
+		except ValueError, e:
+			print >> sys.stderr, "mediarename: skipping unsupported file type", file
+			return None
+
+		artist = self.normalise(tag.artist)
+		title = self.normalise(tag.title)
+		album = self.normalise(tag.album)
+		track = tag.track
+		if track is None and n is not None:
+			track = n
+		newname = self.createNewName(artist, album, track, title, extension)
+
+		if self.options.verbose:
+			print "%s/%s/%d/%s  -> " % (tag.artist,tag.album,tag.track,tag.title),
+
+		return newname
 
 	#
 	# Function:		createNewName
