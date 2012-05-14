@@ -113,6 +113,37 @@ class TMediaRename:
 					print >> sys.stderr,  "mediarename: ERROR creating target:",e.args[0]
 					raise
 
+		elif self.options.mode == 'm3u':
+			print >> sys.stderr, "mediarename: --- Playlist mode"
+
+			filemap = dict()
+			for playlistfile in self.positionalparameters:
+				f = open(playlistfile, 'r')
+
+				n = 1
+
+				for file in f:
+					# Skip comments
+					if file[0] == '#':
+						continue
+
+					file = file.rstrip()
+					file = os.path.join(os.path.dirname(playlistfile), file)
+					filemap[file] = self.processFile(file, n)
+					if filemap[file] is None:
+						continue
+
+					n = n + 1
+
+					if self.options.verbose:
+						print filemap[file]
+
+					try:
+						self.renameWithPathCreate( file, filemap[file] )
+					except Exception, e:
+						print >> sys.stderr,  "mediarename: ERROR creating target:",e.args[0]
+						raise
+
 		elif self.options.mode == 'testnormalise':
 			for teststring in self.positionalparameters:
 				print self.normalise( teststring )
@@ -254,6 +285,9 @@ class TMediaRename:
 		parser.add_option( "-p", "--path", dest="pathprefix",
 			metavar="PATH", type='string', default=self.options.pathprefix,
 			help="use PATH rather than the current directory as target")
+		parser.add_option( "-y", "--m3u", dest="mode",
+			action="store_const", const="m3u",
+			help="files are m3u playlist files" )
 		parser.add_option( "-n", "--tracknums", dest="tracknums",
 			action="store_true",
 			help="Prefix track names with the track number")
