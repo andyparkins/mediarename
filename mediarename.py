@@ -276,7 +276,7 @@ class TMediaRename:
 	def readCommandLine( self ):
 		# Configure parser
 		parser = OptionParser(
-			usage="usage: %prog [options]",
+			usage="usage: %prog [options] <file> <file> ...",
 			version="%prog 1.0")
 		# "-h", "--help" supplied automatically by OptionParser
 		parser.add_option( "-v", "--verbose", dest="verbose",
@@ -348,7 +348,10 @@ def main( argv = None ):
 
 	# Simply display TMediaRenameErrors
 	except TMediaRenameError, e:
-		print >> sys.stderr,  "mediarename: ERROR:",e.args[0]
+		print >> sys.stderr, "mediarename: ERROR:",e.args[0]
+
+	except KeyboardInterrupt, e:
+		print >> sys.stderr, "mediarename: Aborted from keyboard"
 
 
 # ----- Module check
