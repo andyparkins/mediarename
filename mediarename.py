@@ -80,6 +80,7 @@ class TMediaRename:
 		self.options = Record()
 		self.options.tracknums = False
 		self.options.includealbum = False
+		self.options.pathprefix = ''
 		self.options.mode = 'default-mode'
 
 	#
@@ -121,8 +122,15 @@ class TMediaRename:
 	# Description:
 	#
 	def createNewName( self, artist, album, track, title, extension ):
-		variableList = [artist]
-		formatString = ["%s/"]
+		formatString = []
+		variableList = []
+
+		if self.options.pathprefix:
+			variableList.append( self.options.pathprefix )
+			formatString.append( "%s/" )
+
+		variableList.append( artist )
+		formatString.append( "%s/" )
 
 		if self.options.includealbum:
 			variableList.append(album)
@@ -182,15 +190,9 @@ class TMediaRename:
 		parser.add_option( "-v", "--verbose", dest="verbose",
 			action="store_true",
 			help="show verbose output")
-#		parser.add_option( "-d", "--draft", dest="draft",
-#			action="store_true", default=self.options.draft,
-#			help="upload as draft articles")
-#		parser.add_option( "-l", "--login", dest="username",
-#			metavar="USERNAME", type='string', default=self.options.username,
-#			help="the username of your google account [default:%default]")
-#		parser.add_option( "-p", "--password", dest="password",
-#			metavar="PASSWORD", type='string', default=self.options.password,
-#			help="the password of your google account [default:NOT SHOWN]")
+		parser.add_option( "-p", "--path", dest="pathprefix",
+			metavar="PATH", type='string', default=self.options.pathprefix,
+			help="use PATH rather than the current directory as target")
 		parser.add_option( "-n", "--tracknums", dest="tracknums",
 			action="store_true",
 			help="Prefix track names with the track number")
